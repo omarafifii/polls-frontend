@@ -16,17 +16,18 @@ import {
   Stack,
   StackDivider,
   // Divider,
-  // useDisclosure,
-  // Modal,
-  // ModalOverlay,
-  // ModalContent,
-  // ModalHeader,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
   // ModalFooter,
-  // ModalBody,
-  // ModalCloseButton,
+  ModalBody,
+  ModalCloseButton,
   Spacer,
   VStack,
 } from "@chakra-ui/react";
+import Vote from "./Vote";
 
 const Home = () => {
   const initialState = {
@@ -37,6 +38,7 @@ const Home = () => {
     search: false,
     items_per_page: 2,
     polls: [],
+    active_poll: null,
   };
   const [state, setState] = React.useState(initialState);
   const api_url = "http://127.0.0.1:8000/polls/";
@@ -45,7 +47,12 @@ const Home = () => {
   const [searchValue, setSearchValue] = React.useState("");
   const handleSearchChange = (event) => setSearchValue(event.target.value);
 
-  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handlePollClick = () => {
+    // Should check expiry first
+    onOpen();
+  };
 
   // Logic for displaying page numbers
   const pageNumbers = [];
@@ -156,7 +163,7 @@ const Home = () => {
   return (
     <Fragment>
       <Flex>
-        <Box p="4">
+        <Box onClick={getItems} p="4">
           <Text as="b" fontSize="3xl">
             Voting System
           </Text>
@@ -174,67 +181,46 @@ const Home = () => {
           </Button>
         </HStack>
       </Flex>
-      {/* <SimpleGrid minChildWidth="180px" spacing="40px" m={5}>
-        {state.arts &&
-          state.arts.map((art) => (
-            <Box
-              maxW="md"
-              borderWidth="1px"
-              borderRadius="lg"
-              overflow="hidden"
-            >
-              <Box p="6">
-                <Box
-                  mt="1"
-                  fontWeight="semibold"
-                  as="h4"
-                  lineHeight="tight"
-                  isTruncated
-                >
-                  {art.name}
-                </Box>
-              </Box>
-            </Box>
-          ))}
-      </SimpleGrid>
 
       <Modal
         isOpen={isOpen}
         onClose={onClose}
         size="6xl"
         scrollBehavior="inside"
+        isCentered
+        // p={10}
+        // pb={30}
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>{state.modal_title}</ModalHeader>
+          <ModalHeader alignSelf={"center"}>
+            <Text as="b" fontSize="2xl">
+              Vote
+            </Text>
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={3}>
-              <Image src={state.modal_image} alt={"Art image"} w={"60%"} />
-              <Box
-              // textAlign="left"
-              // align="left"
-              // left
-              >
-                {state.modal_title}
-              </Box>
-              <Box>By: {state.modal_artist}</Box>
-              <Box>{state.modal_description}</Box>
-            </VStack>
+          <ModalBody p={10}>
+            <Vote poll={state.active_poll} />
           </ModalBody>
 
           {/* <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
               Close
             </Button>
-           </ModalFooter> */}
-      {/* </ModalContent> */}
-      {/* </Modal> */}
-      {/* <Center> */}
+          </ModalFooter> */}
+        </ModalContent>
+      </Modal>
+      {/* <Center>  */}
       {state.polls.length > 0 &&
         state.polls.map((poll) => (
           <VStack m={10} key={poll.id}>
-            <Box w="50%">
+            <Box
+              onClick={() => {
+                setState({ ...state, active_poll: poll });
+                handlePollClick();
+              }}
+              w="50%"
+            >
               {/* <Card bg="#BCE8F5" border="1px" borderColor="gray.400"> */}
               <Card bg="orange.100" border="1px" borderColor="gray.400">
                 <CardHeader>
