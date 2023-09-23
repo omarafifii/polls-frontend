@@ -24,8 +24,6 @@ import {
 const Vote = ({ poll }) => {
   const initialState = {
     active_choice: null,
-    email: "",
-    otp: "",
     notification: "",
     error_message: "",
     show_email: false,
@@ -40,6 +38,8 @@ const Vote = ({ poll }) => {
   const [choices, setChoices] = React.useState([]);
   const [email, setEmail] = React.useState("");
   const [otp, setOTP] = React.useState("");
+  const handleEmailChange = (event) => setEmail(event.target.value);
+  const handleOTPChange = (event) => setOTP(event.target.value);
   const api_url = "http://127.0.0.1:8000/polls/";
 
   const getChoices = () => {
@@ -75,51 +75,61 @@ const Vote = ({ poll }) => {
   };
 
   const handleVoteButton = () => {
-    console.log("in getchoices fetch");
+    // console.log("in getchoices fetch");
     // console.log('page number:', state.current_page);
     // // console.log('in fetch')
     setState({ ...state, show_email: false });
-    (api_url + `vote/`,
-    {
+    fetch(api_url + `vote/`, {
       method: "post",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         choice_id: state.active_choice.id,
-        email: state.email,
+        email: email,
       }),
     })
       .then((res) => {
+        console.log("first then");
+
         if (res.ok) {
-          setState({
-            ...state,
-            show_not: true,
-            notification: "Email sent",
-          });
+          console.log("ok");
 
           return res.json();
         } else {
-          throw res;
+          console.log("else");
+          console.log("res", res);
+          const myResJson = res.json();
+          console.log("res json", myResJson);
+          return myResJson.then((response) => {
+            console.log("response", response);
+            console.log("message", response["error"]);
+            throw new Error(response["error"]);
+          });
+          // throw res;
         }
       })
       .then((resJson) => {
-        console.log("resJson", resJson);
-        const mylist = [...resJson];
-        let data = {
+        console.log("second then");
+        setState({
           ...state,
-          choice_list: mylist,
-        };
-        setState(data);
-        setChoices(mylist);
-        console.log("list", mylist);
-        console.log("data", data);
-        console.log("choices", state.choice_list);
-        console.log("choices2", choices);
+          show_error: false,
+          error_message: "",
+          show_not: true,
+          notification: "Email sent! Please enter OTP",
+          show_otp: true,
+          show_email: false,
+        });
+
+        console.log("resJson", resJson);
       })
       .catch((error) => {
+        console.log("catch");
+
+        console.log(state);
         console.log(error);
-        setState({ ...state, show_error: true, error_message: error });
+        setState({ ...state, show_error: true, error_message: error.message });
+        console.log(state);
       });
   };
 
@@ -210,7 +220,7 @@ const Vote = ({ poll }) => {
           <Text
             display={state.show_not ? "" : "none"}
             fontSize="lg"
-            color="tomato"
+            color={"green.500"}
           >
             {state.notification}
           </Text>
@@ -220,7 +230,7 @@ const Vote = ({ poll }) => {
             align={"center"}
             w={"500px"}
             value={email}
-            onChange={setEmail}
+            onChange={handleEmailChange}
             placeholder="Email"
             size="md"
           />
@@ -230,7 +240,7 @@ const Vote = ({ poll }) => {
             align={"center"}
             w={500}
             value={otp}
-            onChange={setOTP}
+            onChange={handleOTPChange}
             placeholder="Enter OTP"
             size="md"
           />

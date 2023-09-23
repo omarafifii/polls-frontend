@@ -51,6 +51,21 @@ const Home = () => {
 
   const handlePollClick = () => {
     // Should check expiry first
+    // const poll_date = getDateFromStr(state.active_poll.exp_date);
+    // let new_date = new Date();
+
+    // var m = new_date.getMonth() + 1;
+    // var d = new_date.getDay();
+    // var y = new_date.getFullYear();
+    // let today = new Date(y, m, d);
+
+    // console.log(today);
+    // console.log(poll_date);
+    // console.log(today < poll_date);
+
+    // if (today < poll_date) {
+    //   onOpen();
+    // }
     onOpen();
   };
 
