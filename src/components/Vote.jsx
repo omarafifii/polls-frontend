@@ -43,7 +43,7 @@ const Vote = ({ poll }) => {
   const api_url = "http://127.0.0.1:8000/polls/";
 
   const getChoices = () => {
-    console.log("in getchoices fetch");
+    // console.log("in getchoices fetch");
     // console.log('page number:', state.current_page);
     // // console.log('in fetch')
 
@@ -56,7 +56,7 @@ const Vote = ({ poll }) => {
         }
       })
       .then((resJson) => {
-        console.log("resJson", resJson);
+        // console.log("resJson", resJson);
         const mylist = [...resJson];
         let data = {
           ...state,
@@ -64,10 +64,10 @@ const Vote = ({ poll }) => {
         };
         setState(data);
         setChoices(mylist);
-        console.log("list", mylist);
-        console.log("data", data);
-        console.log("choices", state.choice_list);
-        console.log("choices2", choices);
+        // console.log("list", mylist);
+        // console.log("data", data);
+        // console.log("choices", state.choice_list);
+        // console.log("choices2", choices);
       })
       .catch((error) => {
         console.log(error);
@@ -90,47 +90,120 @@ const Vote = ({ poll }) => {
       }),
     })
       .then((res) => {
-        console.log("first then");
+        // console.log("first then");
 
         if (res.ok) {
-          console.log("ok");
+          // console.log("ok");
 
           return res.json();
         } else {
-          console.log("else");
-          console.log("res", res);
+          // console.log("else");
+          // console.log("res", res);
           const myResJson = res.json();
-          console.log("res json", myResJson);
+          // console.log("res json", myResJson);
           return myResJson.then((response) => {
-            console.log("response", response);
-            console.log("message", response["error"]);
+            // console.log("response", response);
+            // console.log("message", response["error"]);
             throw new Error(response["error"]);
           });
           // throw res;
         }
       })
       .then((resJson) => {
-        console.log("second then");
+        // console.log("second then");
         setState({
           ...state,
           show_error: false,
           error_message: "",
           show_not: true,
-          notification: "Email sent! Please enter OTP",
+          notification: resJson,
           show_otp: true,
           show_email: false,
         });
 
-        console.log("resJson", resJson);
+        // notification: "Email sent! Please enter OTP",
+        // console.log("resJson", resJson);
       })
       .catch((error) => {
-        console.log("catch");
+        // console.log("catch");
 
-        console.log(state);
-        console.log(error);
+        // console.log(state);
+        // console.log(error);
         setState({ ...state, show_error: true, error_message: error.message });
-        console.log(state);
+        // console.log(state);
       });
+  };
+
+  const handleConfirmButton = () => {
+    // console.log("in getchoices fetch");
+    // console.log('page number:', state.current_page);
+    // // console.log('in fetch')
+    setState({ ...state, show_email: false });
+    fetch(api_url + `confirm/`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        choice_id: state.active_choice.id,
+        email: email,
+        otp: otp,
+      }),
+    })
+      .then((res) => {
+        // console.log("first then");
+
+        if (res.ok) {
+          // console.log("ok");
+
+          return res.json();
+        } else {
+          // console.log("else");
+          // console.log("res", res);
+          const myResJson = res.json();
+          // console.log("res json", myResJson);
+          return myResJson.then((response) => {
+            // console.log("response", response);
+            // console.log("message", response["error"]);
+            throw new Error(response["error"]);
+          });
+          // throw res;
+        }
+      })
+      .then((resJson) => {
+        // console.log("second then");
+        incrementVote();
+        setState({
+          ...state,
+          show_error: false,
+          error_message: "",
+          show_not: true,
+          notification: resJson,
+          show_otp: false,
+          show_email: false,
+        });
+
+        // notification: "Vote Confirmed!",
+        // console.log("resJson", resJson);
+      })
+      .catch((error) => {
+        // console.log("catch");
+
+        // console.log(state);
+        // console.log(error);
+        setState({ ...state, show_error: true, error_message: error.message });
+        // console.log(state);
+      });
+  };
+
+  const incrementVote = () => {
+    const updated_choices = choices.map((choice) => {
+      if (choice.id == state.active_choice.id) {
+        choice.votes = choice.votes + 1;
+      }
+      return choice;
+    });
+    setChoices(updated_choices);
   };
 
   let didInit = false;
@@ -211,18 +284,18 @@ const Vote = ({ poll }) => {
       <Center>
         <VStack>
           <Text
-            display={state.show_error ? "" : "none"}
-            fontSize="lg"
-            color="tomato"
-          >
-            {state.error_message}
-          </Text>
-          <Text
             display={state.show_not ? "" : "none"}
             fontSize="lg"
             color={"green.500"}
           >
             {state.notification}
+          </Text>
+          <Text
+            display={state.show_error ? "" : "none"}
+            fontSize="lg"
+            color="tomato"
+          >
+            {state.error_message}
           </Text>
           <Input
             // {state.show_email?"":display="none"}
@@ -252,19 +325,17 @@ const Vote = ({ poll }) => {
           >
             Vote
           </Button>
+          <Button
+            display={state.show_otp ? "" : "none"}
+            onClick={handleConfirmButton}
+            colorScheme="teal"
+            size="lg"
+          >
+            Confirm
+          </Button>
         </VStack>
       </Center>
     </>
-    // <div>
-    //   <p>Hello FunctionalComponent</p>
-    //   <p>{poll.id}</p>
-    //   {/* <p>{console.log(state.choice_list)}</p> */}
-
-    //   <p>{state.choice_list[0].id}</p>
-    //   <p>{state.choice_list[0].text}</p>
-    //   <p>{state.choice_list[1].id}</p>
-    //   <p>{state.choice_list[1].text}</p>
-    // </div>
   );
 };
 
