@@ -1,4 +1,7 @@
 import React, { Fragment } from "react";
+// import 'dotenv/config'
+// import * as dotenv from 'dotenv'
+// dotenv.config()
 
 import {
   Center,
@@ -41,8 +44,11 @@ const Home = () => {
     active_poll: null,
   };
   const [state, setState] = React.useState(initialState);
-  const api_url = "http://127.0.0.1:8000/polls/";
-  //   const api_url = process.env.REACT_APP_API_URL;
+  const api_url = import.meta.env.VITE_API_URL;
+  // const api_url = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/polls/";
+  // const api_url = "http://127.0.0.1:8000/polls/";
+    // eslint-disable-next-line no-undef
+    // const api_url = process.env.api_url;
 
   const [searchValue, setSearchValue] = React.useState("");
   const handleSearchChange = (event) => setSearchValue(event.target.value);
